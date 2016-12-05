@@ -1,0 +1,23 @@
+\documentclass{article}
+
+\title{Neural Networks}
+\author{Xeryus Stokkel(s2332795)}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+An artificial neural network can be used to store data with binary labels. The
+only requirement for this is whether the dataset is linearly seperable. This
+means that a the positive and the negative subsets of the data can be separated
+by putting a hyperplane in between them. To be able to store the data in the
+perceptron it needs to be trained. This is done using the Rosenblatt perceptron
+algorithm. The perceptron will be tested on its ability to separate the two
+classes as the ratio of datapoints to input neurons increases.
+
+\section{Method}
+
+\section{Results and discussion}
+
+\end{document}

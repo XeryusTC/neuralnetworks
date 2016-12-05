@@ -1,4 +1,8 @@
 *.csv
+# LaTeX/knitr
+*.pdf
+*.tex
+*.synctex.gz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -89,3 +93,4 @@ ENV/
 
 # Rope project settings
 .ropeproject
+.Rproj.user
