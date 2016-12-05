@@ -34,8 +34,9 @@ def experiment(N, alphas, n_D, n_max):
             for n in range(n_D):
                 data, labels = generate_data(P, N)
                 res = train_rosenblat(data, labels, n_max)
-                f.write('{},{},{}\n'.format(a, n, res))
+                f.write('{},{},{}\n'.format(a, n, (1 if res else 0)))
+            f.flush()
 
 if __name__ == '__main__':
-    alphas = np.linspace(0.75, 3.0, 10)
-    experiment(20, alphas, 50, 100)
+    alphas = np.linspace(0.75, 3.0, 40)
+    experiment(40, alphas, 200, 500)
