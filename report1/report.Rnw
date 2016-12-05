@@ -1,4 +1,11 @@
+% !Rnw weave = knitr
 \documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xfrac}
+\usepackage[hidelinks]{hyperref}
+\usepackage[all]{hypcap}
 
 \title{Neural Networks}
 \author{Xeryus Stokkel(s2332795)}
@@ -17,7 +24,58 @@ algorithm. The perceptron will be tested on its ability to separate the two
 classes as the ratio of datapoints to input neurons increases.
 
 \section{Method}
+A perceptron of $N$ input neurons and a single output neuron is created. $P$
+vectors $\mathbf{\xi} \in \mathbb{R}^N$ are generated with independent random
+Gaussian components of mean zero and variance one. This creates a dataset
+matrix $D \in \mathbb{R}^{N \times P}$. Each vector $\xi$ is assigned a
+positive or a negative ($\pm 1$) label randomly with equal probability. This
+results in a vector $\mathbf{S}$ of $P$ components, one for each datapoint
+$\mathbf{\xi}$. To finalize the setup of the experiment the perceptron is
+initialized with initial weights of zero, so $\mathbf{w} = 0$.
+
+The Rosenblatt algorithm for training a perceptron is applied in the following
+manner. The perceptron is trained over a number of epochs, this number of
+epochs can be limited by the variable $n_\text{max}$. During each epoch the
+perceptron is presented with all of the $P$ examples sequentially. After each
+presentation the perceptron classifies the example according to the formula:
+\[ E = \mathbf{w} \cdot \mathbf{\xi}_t \mathbf{S}_t \]
+where $t$ is the number of the example being presented. If $E \leq 0$ then
+the weight vector is updated according to the rule
+\[ \mathbf{w} = \mathbf{w} + \frac{1}{N} \mathbf{\xi}_t \mathbf{S}_t \]
+otherwise the weight vector is not updated. After this step the next example is
+presented to the perceptron with the updated weight vector.
+
+The training lasts at most $n_\text{max}$ epochs, so at most $n_max \times P$
+updates to the weight vector are performed. Training the perceptron is
+successful when the weight vector was not updated during an epoch, this means
+that every single datapoint was classified correctly by the perceptron. If
+the maximum number of epochs has been reached and the weight vector was updated
+during the last epoch then training is marked as a failure.
+
+Finally we want to know the fraction of successful runs, $Q_\text{l.s.}$, as a
+function of $\alpha = \sfrac{P}{N}$. To do this we create $n_D$ independently
+generated datasets $D$ for several different values of $\alpha$. All other
+parameters are kept constant. For each of the independently generated datasets
+an new perceptron is trained. Since we know whether training was successful or
+not we can calculate the value of $Q_\text{l.s.}$ by taking the proportion of
+successfully trained perceptrons. The parameters for the experiment were
+$N = 40, n_D = 200, n_max = 500$, a total of 40 values for $\alpha$ were
+linearly taken between $0.75$ and $3.0$ inclusive. These values were taken to
+give a good resolution of the results while limiting computational time.
 
 \section{Results and discussion}
+The results of the experiment can be found in \autoref{fig:plot}.
+
+<<'plot', echo=F, dev='tikz', fig.cap='The proportion of the size of the dataset as a function of the number of input nodes ($\\alpha = \\sfrac{P}{N}$) versus the proportion of correctly trained networks.'>>=
+dat = read.csv('results.csv', header=T)
+res = aggregate(result ~ alpha, data=dat, FUN=mean)
+
+plot(res,
+     type="s",
+     xlab="$\\alpha$",
+     ylab="Proportion of correctly stored data")
+abline(v=2, col='lightgray', lty=3)
+@
+
 
 \end{document}

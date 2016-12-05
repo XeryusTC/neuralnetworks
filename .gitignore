@@ -3,6 +3,8 @@
 *.pdf
 *.tex
 *.synctex.gz
+*-tikzDictionary
+figure/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
