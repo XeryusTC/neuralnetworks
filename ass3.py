@@ -16,17 +16,20 @@ def const_eta(eta):
     return eta_func
 
 def train(P, N, t_max, eta_func=const_eta(0.05)):
-    data, labels = generate_data(P, N)
-
-    w_1 = np.random.randn(N)
-    w_1 = w_1 / np.linalg.norm(w_1, ord=2)
-    w_2 = np.random.randn(N)
-    w_2 = w_2 / np.linalg.norm(w_2, ord=2)
-
+    data, labels, w_1, w_2 = setup(P, N)
     for t in range(t_max):
         idx = np.random.random_integers(P) - 1
         eta = eta_func(t)
         w_1, w_2 = train_round(idx, data, labels, w_1, w_2, eta)
+
+def setup(P, N):
+    data, labels = generate_data(P, N)
+
+    w_1 = np.random.randn(N)
+    w_2 = np.random.randn(N)
+    w_1 = w_1 / np.linalg.norm(w_1, ord=2)
+    w_2 = w_2 / np.linalg.norm(w_2, ord=2)
+    return data, labels, w_1, w_2
 
 def train_round(idx, data, labels, w_1, w_2, eta):
     out = output(data[idx,:], w_1, w_2)
