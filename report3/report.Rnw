@@ -1,0 +1,81 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+
+\title{Neural Networks Assignment 3 \\
+    Learning by gradient descent}
+\author{Xeryus Stokkel (s2332795)}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Gradient descent is an often used method for optimalisation problems. It
+requires that there is a continuous error function that describes a kind of
+$N$-dimensional error landscape. By following the gradient at the current
+position in the landscape the method aims to find a (local) minimum. This is a
+point where by slightly changing any of the parameters the error would go up.
+This is a very effective way of finding an optimal set of parameters.
+
+Gradient descend can also be applied to neural networks when its output is
+continuous and the labels of the data set are also continuous. From this an
+error function can be created by taking the quadratic deviation $e(\sigma,
+\tau) = \frac{1}{2}(\sigma - \tau)^2$ where $\sigma \in \mathbb{R}$ is the
+output of the network and $\tau \in \mathbb{R}$ is the label of the example.
+This can be turned into the error function
+\[ E = \frac{1}{P} \frac{1}{2} \sum_{\mu=1}^P (\sigma(\mathbf{\xi}^\mu) -
+    \tau(\mathbf{\xi}^\mu))^2 \]
+for a data set $\mathbb{D} = \{\mathbf{\xi}^\mu, \tau(\mathbf{\xi}^\mu)\}
+_{\mu=1}^P$. Each $\mathbf{\xi}^\mu \in \mathbb{R}^N$ is an example that will
+be presented to the neural network.
+
+\section{Method}
+
+To learn the error function $E$ a simple feedforward neural network with real
+valued output is constructed. To get a real valued output a a so called soft committee machine is used. Its output is
+\[ \sigma(\mathbf{\xi}^\mu) = \tanh(\mathbf{w}_1 \cdot \mathbf{\xi}^\mu) +
+    \tanh(\mathbf{w}_2 \cdot \mathbf{\xi}^\mu) \]
+where $\mathbf{w}_1$ and $\mathbf{w}_2$ are the $N$-dimensional weight vectors
+of the two hidden units respectively. Both weight vectors are initialized
+with random components and are of unit length. These weight vectors will be
+adapted to minimize the error function $E$ during the learning process.
+
+During the learning step the network gets presented one randomly selected
+example ($\mathbf{\xi}^\nu$) from the $P$ examples with equal probability.
+Only the contribution of the example $\mathbf{\xi}^\nu$ is taken into account,
+so during this training step the error is $e^\nu = \frac{1}{2} (\sigma(
+\mathbf{\xi}^\nu) - \tau(\mathbf{\xi}^\nu))^2$. The gradient $\nabla_j$ with
+respect to weight vector $\mathbf{w}_j$ can be derived as follows
+
+\begin{align*}
+    \frac{\partial e^\nu}{\partial \mathbf{w}_j} &= (\tanh(\mathbf{w}_j \cdot
+        \mathbf{\xi}^\nu) - \tau(\mathbf{\xi}^\nu)) \tanh'(\mathbf{w}_j \cdot
+        \mathbf{\xi}^\nu) \mathbf{\xi}^\nu\\
+     &= (\tanh(\mathbf{w}_j \cdot \mathbf{\xi}^\nu) - \tau(\mathbf{\xi}^\nu))
+     (1 - \tanh^2(\mathbf{w}_j \cdot \mathbf{\xi}^\nu)) \mathbf{\xi}^\nu \\
+     \nabla_j &= (\tanh(\mathbf{w}_j \cdot \mathbf{\xi}^\nu) -
+        \tau(\mathbf{\xi}^\nu))      (1 - \tanh^2(\mathbf{w}_j \cdot
+        \mathbf{\xi}^\nu)) \mathbf{\xi}^\nu
+\end{align*}
+so each weight vector can be updated independently by
+\[ \mathbf{w}_j \gets \mathbf{w}_j - \eta \nabla_j e^\nu \]
+where $\eta$ is the learning rate. By doing this repeatedly for all
+$\mathbf{\xi}^\nu$ that have been randomly picked the error $E$ will be
+minimized by stochastic gradient descent.
+
+The dataset is constructed from the given data set as follows. The training set
+consists of the first $P$ examples in the data set. The test set consists of
+the next $Q$ examples of the supplied set. This ensures that there is no
+overlap between the training and the test set so that the best results are
+obtained.
+
+\section{Results}
+
+\section{Discussion}
+
+
+\end{document}
