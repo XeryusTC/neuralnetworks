@@ -2,7 +2,7 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
 \title{Neural Networks Assignment 3 \\
@@ -73,9 +73,112 @@ the next $Q$ examples of the supplied set. This ensures that there is no
 overlap between the training and the test set so that the best results are
 obtained.
 
-\section{Results}
+One of the best measures of how well a neural network performs is to look at
+how the error evolves over time. This indicates how fast the network is able to
+learn the function. To test this the network is trained on a fixed subset of
+the data. The first 2000 entries of the data set are used to train the network,
+it is tested on the next 200 entries of the data set. $\eta = 0.05$ during this
+experiment so that the error is not influenced by a dynamic learning rate. The
+network is trained and evaluated 100 times to negate the effects of the initial
+weights being random.
 
-\section{Discussion}
+The learning rate is of influence of how fast the network converges to a
+solution, setting it too low means that this will take a long time. However,
+setting it too high also has a negative effect: the network might not converge
+at all because it will overshoot the local minima. The effect of the magnitude
+of the learning rate is also tested with the same parameters as above, but with
+a varying learning rate.
 
+Finally the size of the training set might also influence how well the neural
+network is able to learn the function. Several different sizes of training set
+are evaluated while the learning rate and the size of the test set is kept
+constant.
+
+\section{Results and discussion}
+
+The results for the first experiment can be found in \autoref{fig:const_eta},
+it shows both the error for the training set ($E$) and the error for the test
+set $E_test$. It clearly shows that the network quickly minimises the error at
+the start, but around $t = 500$ the error functions level off into a plateau
+state for the next 800 epochs. After that the errors slowly level off to their
+final value of $\sim 0.02$.
+
+From \autoref{fig:const_eta} it is also quite clear that the network does not
+perform as well on the test set as on the training set. This indicates that the
+network slightly overfits on the training set. This is not surprising since the
+neural network has never seen any of the data points in the test set so it
+cannot learn what the corresponding output should be. It can only respond with
+the most likely output based on what it has learned from the training set,
+which is the goal of training a neural network.
+
+<<'const_eta', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set. Note that the y-axis is logarithmic.'>>=
+dat = read.csv('results.csv', header=T)
+E = aggregate(cbind(E, E_test) ~ t, data=dat, FUN=mean)
+E = E[ order(E$t),]
+
+plot(E$t, E$E,
+     type='l',
+     xlab='Epoch',
+     ylab='Error',
+     col='blue',
+     log='y')
+lines(E$t, E$E_test,
+      col='red')
+legend('topright',
+       c('$E$', '$E_\\text{test}$'),
+       col=c('blue', 'red'),
+       lty=1,
+       inset=0.03)
+@
+
+<<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error on the training set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
+dat = read.csv('eta_sweep.csv', header=T)
+E = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
+
+plot(E$t[E$eta==0.01], E$E[E$eta==0.01],
+     type='l',
+     xlab='Epoch',
+     ylab='Error',
+     col='blue',
+     ylim=c(0, 0.2))
+lines(E$t[E$eta==0.05], E$E[E$eta==0.05], col='red')
+lines(E$t[E$eta==0.1], E$E[E$eta==0.1], col='green')
+lines(E$t[E$eta==0.001], E$E[E$eta==0.001], col='black')
+lines(E$t[E$eta==0.005], E$E[E$eta==0.005], col='cyan')
+legend('topright',
+       c('0.001', '0.005', '0.01', '0.05', '0.1'),
+       col=c('black', 'cyan', 'blue', 'red', 'green'),
+       lty=1,
+       inset=0.03,
+       title='$\\eta$',
+       bg='white')
+@
+
+<<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='P sweep'>>=
+dat = read.csv('train_sweep.csv', header=T)
+E = aggregate(E_test ~ t + P, data=dat, FUN=mean)
+plot(E$t[E$P==4000], E$E[E$P==4000],
+     type='l',
+     xlab='Epoch',
+     ylab='Error',
+     col='black',
+     log='y')
+lines(E$t[E$P==2000], E$E[E$P==2000], col='red')
+lines(E$t[E$P==1500], E$E[E$P==1500], col='green3')
+lines(E$t[E$P==1000], E$E[E$P==1000], col='blue')
+lines(E$t[E$P==500], E$E[E$P==500], col='cyan')
+lines(E$t[E$P==400], E$E[E$P==400], col='maroon')
+lines(E$t[E$P==200], E$E[E$P==200], col='purple')
+lines(E$t[E$P==100], E$E[E$P==100], col='gray')
+lines(E$t[E$P==50], E$E[E$P==50], col='orange')
+legend('topright',
+       c('50', '100', '200', '400', '500', '1000', '1500', '2000', '4000'),
+       col=c('orange', 'gray', 'purple', 'maroon', 'cyan', 'blue', 'green',
+             'red', 'black'),
+       lty=1,
+       inset=0.03,
+       title='$P$',
+       bg='white')
+@
 
 \end{document}
