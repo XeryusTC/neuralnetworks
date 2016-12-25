@@ -71,7 +71,7 @@ dat = read.csv('results.csv', header=T)
 res = aggregate(result ~ alpha, data=dat, FUN=mean)
 
 plot(res,
-     type="s",
+     type="l",
      xlab="$\\alpha$",
      ylab="Proportion of correctly stored data")
 abline(v=2, col='lightgray', lty=3)
