@@ -111,7 +111,7 @@ cannot learn what the corresponding output should be. It can only respond with
 the most likely output based on what it has learned from the training set,
 which is the goal of training a neural network.
 
-<<'const_eta', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set. Note that the y-axis is logarithmic.'>>=
+<<'const_eta', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set. Note that the y-axis is logarithmic.'>>=
 dat = read.csv('results.csv', header=T)
 E = aggregate(cbind(E, E_test) ~ t, data=dat, FUN=mean)
 E = E[ order(E$t),]
@@ -133,18 +133,18 @@ legend('topright',
 
 <<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error on the training set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
 dat = read.csv('eta_sweep.csv', header=T)
-E = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
+eta = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
 
-plot(E$t[E$eta==0.01], E$E[E$eta==0.01],
+plot(eta$t[eta$eta==0.01], eta$E[eta$eta==0.01],
      type='l',
      xlab='Epoch',
      ylab='Error',
      col='blue',
-     ylim=c(0, 0.2))
-lines(E$t[E$eta==0.05], E$E[E$eta==0.05], col='red')
-lines(E$t[E$eta==0.1], E$E[E$eta==0.1], col='green')
-lines(E$t[E$eta==0.001], E$E[E$eta==0.001], col='black')
-lines(E$t[E$eta==0.005], E$E[E$eta==0.005], col='cyan')
+     ylim=c(0, 0.3))
+lines(eta$t[eta$eta==0.05], eta$E[eta$eta==0.05], col='red')
+lines(eta$t[eta$eta==0.1], eta$E[eta$eta==0.1], col='green')
+lines(eta$t[eta$eta==0.001], eta$E[eta$eta==0.001], col='black')
+lines(eta$t[eta$eta==0.005], eta$E[eta$eta==0.005], col='cyan')
 legend('topright',
        c('0.001', '0.005', '0.01', '0.05', '0.1'),
        col=c('black', 'cyan', 'blue', 'red', 'green'),
@@ -153,6 +153,8 @@ legend('topright',
        title='$\\eta$',
        bg='white')
 @
+
+The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. It shows that only when $\eta = 0.05$ that there is a plateau, all other values of $\eta$ do not show a plateau state.
 
 <<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='P sweep'>>=
 dat = read.csv('train_sweep.csv', header=T)

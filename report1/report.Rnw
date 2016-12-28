@@ -7,7 +7,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
-\title{Neural Networks}
+\title{Neural Networks Preliminary Assignment 1}
 \author{Xeryus Stokkel(s2332795)}
 
 \begin{document}
@@ -38,14 +38,14 @@ manner. The perceptron is trained over a number of epochs, this number of
 epochs can be limited by the variable $n_\text{max}$. During each epoch the
 perceptron is presented with all of the $P$ examples sequentially. After each
 presentation the perceptron classifies the example according to the formula:
-\[ E = \mathbf{w} \cdot \mathbf{\xi}_t \mathbf{S}_t \]
+\[ E = \mathbf{w} \cdot \mathbf{\xi}^\mu \mathbf{S}^\mu \]
 where $t$ is the number of the example being presented. If $E \leq 0$ then
 the weight vector is updated according to the rule
-\[ \mathbf{w} = \mathbf{w} + \frac{1}{N} \mathbf{\xi}_t \mathbf{S}_t \]
+\[ \mathbf{w} = \mathbf{w} + \frac{1}{N} \mathbf{\xi}^\mu \mathbf{S}^\mu \]
 otherwise the weight vector is not updated. After this step the next example is
 presented to the perceptron with the updated weight vector.
 
-The training lasts at most $n_\text{max}$ epochs, so at most $n_max \times P$
+The training lasts at most $n_\text{max}$ epochs, so at most $n_\text{max} \times P$
 updates to the weight vector are performed. Training the perceptron is
 successful when the weight vector was not updated during an epoch, this means
 that every single datapoint was classified correctly by the perceptron. If
@@ -64,18 +64,29 @@ linearly taken between $0.75$ and $3.0$ inclusive. These values were taken to
 give a good resolution of the results while limiting computational time.
 
 \section{Results and discussion}
-The results of the experiment can be found in \autoref{fig:plot}.
-
-<<'plot', echo=F, dev='tikz', fig.cap='The proportion of the size of the dataset as a function of the number of input nodes ($\\alpha = \\sfrac{P}{N}$) versus the proportion of correctly trained networks.'>>=
+<<'plot', echo=F, dev='tikz', fig.cap='The proportion of the size of the dataset as a function of the number of input nodes ($\\alpha = \\sfrac{P}{N}$) versus the proportion of correctly stored datasets ($Q_\\text{l.s.}$).'>>=
 dat = read.csv('results.csv', header=T)
 res = aggregate(result ~ alpha, data=dat, FUN=mean)
 
 plot(res,
      type="l",
      xlab="$\\alpha$",
-     ylab="Proportion of correctly stored data")
+     ylab="$Q_\\text{l.s}$")
 abline(v=2, col='lightgray', lty=3)
 @
+
+The experimental results can be found in \autoref{fig:plot}, it shows the proportion of the correctly stored datasets as a function of the size of the dataset relative to the number of input neurons ($\alpha = \sfrac{P}{N}$). We can see that the plot goes from 1 (or 100\% of all datasets were correctly stored) to 0 (none of the datasets were correctly stored) with a smooth sigmoidal curve. This indicates that when the dataset grows that the performance of the neural network starts to degrade.
+
+Theoretically the ability to store the dataset in a perceptron is
+\[ P_{l.s.}(\alpha) =
+\begin{cases}
+   1 & \quad \text{for } \alpha \leq 2 \\
+   0 & \quad \text{for } \alpha > 2
+\end{cases} \]
+as $N \to \infty$, meaning that there is a point at $\alpha = 2$ where the data is not linearly seperable any more. The perceptron will not be able to separate the datapoints anymore. The findings of the experiment are shown in \autoref{fig:plot}, here it can be seen that at around $\alpha = 2$ that the network is able to separate about half of the generated datasets.
+
+The storage performance mostly degenerates before the $\alpha = 2$ line, with $Q_\text{l.s.} \approx 0.25$ at the point where the transition is expected to happen.
+
 
 
 \end{document}
