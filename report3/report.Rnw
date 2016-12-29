@@ -154,7 +154,7 @@ legend('topright',
        bg='white')
 @
 
-The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. It shows that only when $\eta = 0.05$ that there is a plateau, all other values of $\eta$ do not show a plateau state.
+The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. It shows that only when $\eta = 0.05$ that there is a plateau, all other values of $\eta$ do not show a plateau state. Interestingly enough when $\eta = 0.1$ there are two distinct knees in the graph, one around $t = 500$ and the other at $t = 3000$. This indicates that there is something
 
 <<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='P sweep'>>=
 dat = read.csv('train_sweep.csv', header=T)
