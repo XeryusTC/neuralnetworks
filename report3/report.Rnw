@@ -14,7 +14,7 @@
 \maketitle
 
 \section{Introduction}
-Gradient descent is an often used method for optimalisation problems. It
+Gradient descent is an often used method for optimization problems. It
 requires that there is a continuous error function that describes a kind of
 $N$-dimensional error landscape. By following the gradient at the current
 position in the landscape the method aims to find a (local) minimum. This is a
@@ -35,7 +35,7 @@ be presented to the neural network.
 
 \section{Method}
 
-To learn the error function $E$ a simple feedforward neural network with real
+To learn the error function $E$ a simple feed-forward neural network with real
 valued output is constructed. To get a real valued output a a so called soft committee machine is used. Its output is
 \[ \sigma(\mathbf{\xi}^\mu) = \tanh(\mathbf{w}_1 \cdot \mathbf{\xi}^\mu) +
     \tanh(\mathbf{w}_2 \cdot \mathbf{\xi}^\mu) \]
@@ -67,7 +67,7 @@ where $\eta$ is the learning rate. By doing this repeatedly for all
 $\mathbf{\xi}^\nu$ that have been randomly picked the error $E$ will be
 minimized by stochastic gradient descent.
 
-The dataset is constructed from the given data set as follows. The training set
+The data set is constructed from the given data set as follows. The training set
 consists of the first $P$ examples in the data set. The test set consists of
 the next $Q$ examples of the supplied set. This ensures that there is no
 overlap between the training and the test set so that the best results are
@@ -98,7 +98,7 @@ constant.
 
 The results for the first experiment can be found in \autoref{fig:const_eta},
 it shows both the error for the training set ($E$) and the error for the test
-set $E_test$. It clearly shows that the network quickly minimises the error at
+set $E_test$. It clearly shows that the network quickly minimizes the error at
 the start, but around $t = 500$ the error functions level off into a plateau
 state for the next 800 epochs. After that the errors slowly level off to their
 final value of $\sim 0.02$.
@@ -111,7 +111,7 @@ cannot learn what the corresponding output should be. It can only respond with
 the most likely output based on what it has learned from the training set,
 which is the goal of training a neural network.
 
-<<'const_eta', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set. Note that the y-axis is logarithmic.'>>=
+<<'const_eta', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set. Note that the $y$-axis is logarithmic.'>>=
 dat = read.csv('results.csv', header=T)
 E = aggregate(cbind(E, E_test) ~ t, data=dat, FUN=mean)
 E = E[ order(E$t),]
@@ -131,7 +131,7 @@ legend('topright',
        inset=0.03)
 @
 
-<<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error on the training set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
+<<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4.5, fig.cap='Error on the test set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
 dat = read.csv('eta_sweep.csv', header=T)
 eta = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
 
@@ -145,18 +145,25 @@ lines(eta$t[eta$eta==0.05], eta$E[eta$eta==0.05], col='red')
 lines(eta$t[eta$eta==0.1], eta$E[eta$eta==0.1], col='green')
 lines(eta$t[eta$eta==0.001], eta$E[eta$eta==0.001], col='black')
 lines(eta$t[eta$eta==0.005], eta$E[eta$eta==0.005], col='cyan')
+lines(eta$t[eta$eta==0.15], eta$E[eta$eta==0.15], col='purple')
 legend('topright',
-       c('0.001', '0.005', '0.01', '0.05', '0.1'),
-       col=c('black', 'cyan', 'blue', 'red', 'green'),
+       c('0.001', '0.005', '0.01', '0.05', '0.1', '0.15'),
+       col=c('black', 'cyan', 'blue', 'red', 'green', 'purple'),
        lty=1,
        inset=0.03,
        title='$\\eta$',
        bg='white')
 @
 
-The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. It shows that only when $\eta = 0.05$ that there is a plateau, all other values of $\eta$ do not show a plateau state. Interestingly enough when $\eta = 0.1$ there are two distinct knees in the graph, one around $t = 500$ and the other at $t = 3000$. This indicates that there is something
+The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. It shows that only when $\eta = 0.05$ that there is a plateau, all other values of $\eta$ do not show a plateau state. Interestingly enough when $\eta = 0.1$ there are two distinct knees in the graph, one around $t = 500$ and the other at $t = 3000$. This indicates that at some point learning does slow down. The most likely cause is that gradient descent works quite well for a part of the gradient, moving slowly to the minimum for those dimensions. Other parts of the gradient are not descended smoothly but quite jaggedly, the $w$ vectors jump across the minimum for some of the dimensions but the absolute distance to the minimum does decrease. This means that the network is able to learn from the data, but not as efficiently as when $\eta$ is smaller.
 
-<<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='P sweep'>>=
+For $\eta = 0.15$ we can see that the error is on average \Sexpr{round(median(eta$E[eta$eta==0.15]), 3)} which is higher than for any of the other learning rates. It is likely that the solution of the neural network diverges from the actual solution. This also strengthens the conclusion about $\eta = 0.1$ because a neural network will shows oscillating behaviour when the learning rate is set too high for smooth convergence, and too low to show diverging behaviour.
+
+The network shows smooth convergence when the learning rate is 0.001, 0.005, 0.01, or 0.05. When $\eta = 0.05$ the network reaches a plateau state as discussed above, other values of $\eta$ do not have this effect. When the learning rate is too low the network still converges but it does so very slowly as the graph for $\eta = 0.001$ shows. Although it is important to converge on the solution smoothly, doing so too slowly means that too much time will be spend training. Training can be sped up by taking a higher learning rate.
+
+One of the most interesting curves is that of $\eta = 0.01$. It shows fast convergence on the solution, but after finding the optimal solution with an error of $\Sexpr{round(min(eta$E[eta$eta==0.01]), 3)}$ the error starts to increase again. This means that the network is overfitting on the training set and starts to loose its ability to generalize and perform well on the test set. The same also appears to happen when $\eta = 0.005$ although it happens slower and the overfitting effect is less pronounced as when $\eta = 0.01$. Although the effect is not as strong it might still be better to use a learning rate of 0.01 since it is easier to detect where the minimum error is because fewer training epochs are needed and the graph is not as `flat', so it is easier to determine after how many epoch the minimum has been reached.
+
+<<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Performance of the neural network with varying size of the training set. The size of the test set was constant but the included examples depend on the size of the training set. Note that the $y$-axis is logarithmic.'>>=
 dat = read.csv('train_sweep.csv', header=T)
 E = aggregate(E_test ~ t + P, data=dat, FUN=mean)
 plot(E$t[E$P==4000], E$E[E$P==4000],

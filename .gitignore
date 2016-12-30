@@ -1,5 +1,6 @@
 cache/
 *.csv
+.RData
 # LaTeX/knitr
 *.pdf
 *.tex
