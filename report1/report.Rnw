@@ -7,7 +7,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
-\title{Neural Networks Preliminary Assignment 1}
+\title{Neural Networks Assignment 1}
 \author{Xeryus Stokkel(s2332795)}
 
 \begin{document}
@@ -27,10 +27,10 @@ classes as the ratio of datapoints to input neurons increases.
 A perceptron of $N$ input neurons and a single output neuron is created. $P$
 vectors $\mathbf{\xi} \in \mathbb{R}^N$ are generated with independent random
 Gaussian components of mean zero and variance one. This creates a dataset
-matrix $D \in \mathbb{R}^{N \times P}$. Each vector $\xi$ is assigned a
+matrix $D \in \mathbb{R}^{N \times P}$. Each vector $\xi^\mu$ is assigned a
 positive or a negative ($\pm 1$) label randomly with equal probability. This
 results in a vector $\mathbf{S}$ of $P$ components, one for each datapoint
-$\mathbf{\xi}$. To finalize the setup of the experiment the perceptron is
+$\mathbf{\xi}^\mu$. To finalize the setup of the experiment the perceptron is
 initialized with initial weights of zero, so $\mathbf{w} = 0$.
 
 The Rosenblatt algorithm for training a perceptron is applied in the following
@@ -83,9 +83,9 @@ Theoretically the ability to store the dataset in a perceptron is
    1 & \quad \text{for } \alpha \leq 2 \\
    0 & \quad \text{for } \alpha > 2
 \end{cases} \]
-as $N \to \infty$, meaning that there is a point at $\alpha = 2$ where the data is not linearly seperable any more. The perceptron will not be able to separate the datapoints anymore. The findings of the experiment are shown in \autoref{fig:plot}, here it can be seen that at around $\alpha = 2$ that the network is able to separate about half of the generated datasets.
+as $N \to \infty$, meaning that there is a point at $\alpha = 2$ where the data is not linearly separable any more. The perceptron will not be able to separate the datapoints anymore. The findings of the experiment are shown in \autoref{fig:plot}, here it can be seen that at around $\alpha = 2$ that the network is able to store less than half of the generated datasets.
 
-The storage performance mostly degenerates before the $\alpha = 2$ line, with $Q_\text{l.s.} \approx 0.25$ at the point where the transition is expected to happen.
+The storage performance mostly degenerates before the $\alpha = 2$ line, with $Q_\text{l.s.} \approx 0.15$ at the point where the transition is expected to happen. The ability of the network to store the data deteriorates before the theoretical limit instead of being symmetric around the limit of $\alpha = 2$
 
 
 
