@@ -40,7 +40,7 @@ def train_minover(data, labels, R, n_max):
         w = w + (1/N) * data[mu] * labels[mu]
         if np.isclose(kappa_min, last_kappa, atol=1e-3):
             stability += 1
-            if stability == 10:
+            if stability == P:
                 break # Stop training
         else:
             stability = 0
@@ -63,5 +63,7 @@ def experiment(N, alphas, n_D, n_max):
             f.flush()
 
 if __name__ == '__main__':
-    alphas = np.linspace(0.75, 3.0, 8)
-    experiment(10, alphas, 10, 10000)
+    #alphas = np.linspace(0.5, 5.0, 20)
+    alphas = np.arange(0.1, 3.1, 0.1)
+    print(alphas)
+    experiment(20, alphas, 50, 20000)
