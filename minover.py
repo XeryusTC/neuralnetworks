@@ -64,6 +64,6 @@ def experiment(N, alphas, n_D, n_max):
 
 if __name__ == '__main__':
     #alphas = np.linspace(0.5, 5.0, 20)
-    alphas = np.arange(0.1, 3.1, 0.1)
+    alphas = np.arange(0.1, 9.1, 0.1)
     print(alphas)
     experiment(20, alphas, 50, 20000)

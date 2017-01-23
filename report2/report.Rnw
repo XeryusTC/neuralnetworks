@@ -17,15 +17,15 @@
 
 \section{Results and discussion}
 
-<<minover, cache=F, echo=T, dev='tikz'>>=
+<<minover, cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=5, fig.cap='Generalisation error of networks trained minover network'>>=
 dat = read.csv('results.csv', header=T)
 e = aggregate(cbind(err, t) ~ alpha, FUN=mean, data=dat)
-e
 
 plot(e$alpha, e$err,
      type="l",
      xlab="$\\alpha$",
-     ylab="$\\epsilon_g$")
+     ylab="$\\epsilon_g$",
+     ylim=c(0, 0.55))
 
 @
 
