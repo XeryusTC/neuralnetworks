@@ -12,6 +12,9 @@
 \maketitle
 
 \section{Introduction}
+A perceptron can be used to store a data set if the network is sufficiently large enough. If new unseen data is presented to the perceptron then it can classify the new data points based on the points it has seen before. The classification happens based on the separating hyperplane that the perceptron has found, this hyperplane separates all instances of the positive class from the instances of the negative class.
+
+One of the properties of the separating hyperplane is its optimality, that is, its distance to the closest data point(s). When this distance is the highest possible then the hyperplane is exactly in between the two classes of the dataset. In this case the probability of misclassifying new data is the lowest of any of the possible separating hyperplanes.
 
 \section{Method}
 

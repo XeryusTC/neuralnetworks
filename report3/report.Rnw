@@ -5,7 +5,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
-\title{Neural Networks Assignment 3 \\
+\title{Neural Networks Assignment III \\
     Learning by gradient descent}
 \author{Xeryus Stokkel (s2332795)}
 

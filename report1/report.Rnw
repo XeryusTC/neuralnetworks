@@ -7,7 +7,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
-\title{Neural Networks Assignment 1}
+\title{Neural Networks Assignment I}
 \author{Xeryus Stokkel(s2332795)}
 
 \begin{document}
