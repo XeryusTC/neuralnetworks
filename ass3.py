@@ -75,8 +75,8 @@ def regression_setup(P=100, Q=100):
 def train_round(idx, data, labels, w_1, w_2, eta, verbose=True):
     out = output(data[idx,:], w_1, w_2)
     err = 0.5 * (out - labels[idx]) ** 2
-    nabla_1 = calc_nabla(w_1, data[idx,:], labels[idx])
-    nabla_2 = calc_nabla(w_2, data[idx,:], labels[idx])
+    nabla_1 = calc_nabla(w_1, data[idx,:], labels[idx], out)
+    nabla_2 = calc_nabla(w_2, data[idx,:], labels[idx], out)
 
     w_1 = w_1 - eta * nabla_1 * err
     w_2 = w_2 - eta * nabla_2 * err
@@ -88,8 +88,8 @@ def train_round(idx, data, labels, w_1, w_2, eta, verbose=True):
 def output(xi, w_1, w_2):
     return np.tanh(w_1.dot(xi)) + np.tanh(w_2.dot(xi))
 
-def calc_nabla(w, xi, tau):
-    return (np.tanh(w.dot(xi)) - tau) * (1 - np.tanh(w.dot(xi))**2) * xi
+def calc_nabla(w, xi, tau, sigma):
+    return (sigma - tau) * (1 - np.tanh(w.dot(xi))**2) * xi
 
 def regression_error(data, labels, w_1, w_2):
     Err = 0

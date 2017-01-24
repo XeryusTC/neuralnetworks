@@ -111,7 +111,7 @@ cannot learn what the corresponding output should be. It can only respond with
 the most likely output based on what it has learned from the training set,
 which is the goal of training a neural network.
 
-<<'const_eta', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set. Note that the $y$-axis is logarithmic.'>>=
+<<'const_eta', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set.'>>=
 dat = read.csv('results.csv', header=T)
 E = aggregate(cbind(E, E_test) ~ t, data=dat, FUN=mean)
 E = E[ order(E$t),]
@@ -120,8 +120,7 @@ plot(E$t, E$E,
      type='l',
      xlab='Epoch',
      ylab='Error',
-     col='blue',
-     log='y')
+     col='blue')
 lines(E$t, E$E_test,
       col='red')
 legend('topright',
@@ -131,7 +130,7 @@ legend('topright',
        inset=0.03)
 @
 
-<<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4.5, fig.cap='Error on the test set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
+<<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error on the test set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
 dat = read.csv('eta_sweep.csv', header=T)
 eta = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
 
@@ -145,10 +144,9 @@ lines(eta$t[eta$eta==0.05], eta$E[eta$eta==0.05], col='red')
 lines(eta$t[eta$eta==0.1], eta$E[eta$eta==0.1], col='green')
 lines(eta$t[eta$eta==0.001], eta$E[eta$eta==0.001], col='black')
 lines(eta$t[eta$eta==0.005], eta$E[eta$eta==0.005], col='cyan')
-lines(eta$t[eta$eta==0.15], eta$E[eta$eta==0.15], col='purple')
 legend('topright',
-       c('0.001', '0.005', '0.01', '0.05', '0.1', '0.15'),
-       col=c('black', 'cyan', 'blue', 'red', 'green', 'purple'),
+       c('0.001', '0.005', '0.01', '0.05', '0.1'),
+       col=c('black', 'cyan', 'blue', 'red', 'green'),
        lty=1,
        inset=0.03,
        title='$\\eta$',
@@ -163,7 +161,7 @@ The network shows smooth convergence when the learning rate is 0.001, 0.005, 0.0
 
 One of the most interesting curves is that of $\eta = 0.01$. It shows fast convergence on the solution, but after finding the optimal solution with an error of $\Sexpr{round(min(eta$E[eta$eta==0.01]), 3)}$ the error starts to increase again. This means that the network is overfitting on the training set and starts to loose its ability to generalize and perform well on the test set. The same also appears to happen when $\eta = 0.005$ although it happens slower and the overfitting effect is less pronounced as when $\eta = 0.01$. Although the effect is not as strong it might still be better to use a learning rate of 0.01 since it is easier to detect where the minimum error is because fewer training epochs are needed and the graph is not as `flat', so it is easier to determine after how many epoch the minimum has been reached.
 
-<<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Performance of the neural network with varying size of the training set. The size of the test set was constant but the included examples depend on the size of the training set. Note that the $y$-axis is logarithmic.'>>=
+<<'P_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=6, fig.cap='Performance of the neural network with varying size of the training set. The size of the test set was constant but the included examples depend on the size of the training set. Note that the $y$-axis is logarithmic.'>>=
 dat = read.csv('train_sweep.csv', header=T)
 E = aggregate(E_test ~ t + P, data=dat, FUN=mean)
 plot(E$t[E$P==4000], E$E[E$P==4000],
