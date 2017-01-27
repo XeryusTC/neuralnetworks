@@ -38,6 +38,7 @@ def regression_train(t_max, P=100, Q=100, eta_func=const_eta(0.05),
                 #print(t, err, err_test)
                 f.write('{},{},{},{},{},{}\n'.format(P, Q, t, eta, err,
                     err_test))
+    return w_1, w_2
 
 def setup(P, N):
     data, labels = generate_data(P, N)
@@ -52,17 +53,24 @@ def setup(P, N):
 def regression_setup(P=100, Q=100):
     # Load mat file and find the value of parameters
     mat = sio.loadmat('data3.mat')
-    data = np.transpose(mat['xi'])
-    labels = np.reshape(mat['tau'], -1)
-    N = data.shape[1]
-    P = data.shape[0] if P > data.shape[0] else P
-    Q = data.shape[0] - P if Q > (data.shape[0] - P) else Q
+    xi = np.transpose(mat['xi'])
+    tau = np.reshape(mat['tau'], -1)
+    N = xi.shape[1]
+    P = xi.shape[0] if P > xi.shape[0] else P
+    Q = xi.shape[0] - P if Q > (xi.shape[0] - P) else Q
+    indexes = np.random.permutation(np.arange(N))
 
     # Create test and dataset
-    train_set = data[:P,:]
-    train_labels = labels[:P]
-    test_set = data[P:(Q+P),:]
-    test_labels = labels[P:Q+P]
+    train_set = np.zeros((P, N))
+    train_labels = np.zeros(P)
+    test_set = np.zeros((Q, N))
+    test_labels = np.zeros(Q)
+    for i in range(P):
+        train_set[i] = xi[i]
+        train_labels[i] = tau[i]
+    for i in range(Q):
+        test_set[i] = xi[i+P]
+        test_labels[i] = tau[i+P]
 
     # Generate initial w_1 and w_2
     w_1 = np.random.randn(N)
@@ -100,25 +108,39 @@ def regression_error(data, labels, w_1, w_2):
     return Err
 
 if __name__ == '__main__':
+    print("Getting w_1, w_2")
+    w_1, w_2 = regression_train(5000, 1000, 200, filename='weights.csv')
+    with open('weights.csv', 'w') as f:
+        for i in range(w_1.shape[0]):
+            if i > 0:
+                f.write(',')
+            f.write('{}'.format(w_1[i]))
+        f.write('\n')
+        for i in range(w_2.shape[0]):
+            if i > 0:
+                f.write(',')
+            f.write('{}'.format(w_2[i]))
+        f.write('\n')
+
     with open('gradient_descent_results.csv', 'w') as f:
         f.write('P,Q,t,eta,E,E_test\n')
-    for i in range(100):
-        print("error", 5000, 2000, 200)
-        regression_train(5000, 2000, 200,
+    for i in range(25):
+        print("error", 2000, 2000, 200)
+        regression_train(2000, 2000, 200,
             filename='gradient_descent_results.csv')
 
     with open('eta_sweep.csv', 'w') as f:
         f.write('P,Q,t,eta,E,E_test\n')
-    for i in range(100):
+    for i in range(25):
         for eta in [0.1, 0.05, 0.01, 0.005, 0.001]:
-            print("eta", 10000, 2000, 200, eta)
-            regression_train(10000, 2000, 200, const_eta(eta), 'eta_sweep.csv')
+            print("eta", 5000, 2000, 200, eta)
+            regression_train(5000, 2000, 200, const_eta(eta), 'eta_sweep.csv')
 
     with open('train_sweep.csv', 'w') as f:
         f.write('P,Q,t,eta,E,E_test\n')
-    for i in range(100):
-        for P in [50, 100, 200, 400, 500, 1000, 1500, 2000, 4000]:
-            print("train", 5000, P, 200)
-            regression_train(5000, P, 200, filename='train_sweep.csv')
+    for i in range(25):
+        for P in [100, 200, 400, 500, 1000, 1500, 2000, 4000]:
+            print("train", 2000, P, 200)
+            regression_train(2000, P, 200, filename='train_sweep.csv')
 
     #train(10, 5, 10)
