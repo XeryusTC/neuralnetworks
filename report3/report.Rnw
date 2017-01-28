@@ -2,6 +2,7 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{float}
 \usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
@@ -35,8 +36,9 @@ be presented to the neural network.
 
 \section{Method}
 
-To learn the error function $E$ a simple feed-forward neural network with real
-valued output is constructed. To get a real valued output a a so called soft committee machine is used. Its output is
+To learn from the error function $E$ a simple feed-forward neural network with
+real valued output is constructed. To get a real valued output a a so called
+soft committee machine is used. Its output is
 \[ \sigma(\mathbf{\xi}^\mu) = \tanh(\mathbf{w}_1 \cdot \mathbf{\xi}^\mu) +
     \tanh(\mathbf{w}_2 \cdot \mathbf{\xi}^\mu) \]
 where $\mathbf{w}_1$ and $\mathbf{w}_2$ are the $N$-dimensional weight vectors
@@ -52,14 +54,9 @@ so during this training step the error is $e^\nu = \frac{1}{2} (\sigma(
 respect to weight vector $\mathbf{w}_j$ can be derived as follows
 
 \begin{align*}
-    \frac{\partial e^\nu}{\partial \mathbf{w}_j} &= (\tanh(\mathbf{w}_j \cdot
-        \mathbf{\xi}^\nu) - \tau(\mathbf{\xi}^\nu)) \tanh'(\mathbf{w}_j \cdot
-        \mathbf{\xi}^\nu) \mathbf{\xi}^\nu\\
-     &= (\tanh(\mathbf{w}_j \cdot \mathbf{\xi}^\nu) - \tau(\mathbf{\xi}^\nu))
-     (1 - \tanh^2(\mathbf{w}_j \cdot \mathbf{\xi}^\nu)) \mathbf{\xi}^\nu \\
-     \nabla_j &= (\tanh(\mathbf{w}_j \cdot \mathbf{\xi}^\nu) -
-        \tau(\mathbf{\xi}^\nu))      (1 - \tanh^2(\mathbf{w}_j \cdot
-        \mathbf{\xi}^\nu)) \mathbf{\xi}^\nu
+     \nabla_j = \frac{\partial e^\nu}{\partial \mathbf{w}_j} &= (\sigma(\xi^\nu) - \tau(\xi^\nu)) \sigma'(\xi^\nu) \\
+    &= (\sigma(\xi^\nu) - \tau(\xi^\nu))[\tanh(\mathbf{w}_1 \cdot \xi^\nu) + \tanh(\mathbf{w}_2 \cdot \xi^\nu)]' \\
+    &= (\sigma(\xi^\nu) - \tau(\xi^\nu))(1 - \tanh^2(\mathbf{w}_j \cdot \xi^\nu)) \xi^\nu
 \end{align*}
 so each weight vector can be updated independently by
 \[ \mathbf{w}_j \gets \mathbf{w}_j - \eta \nabla_j e^\nu \]
@@ -67,19 +64,18 @@ where $\eta$ is the learning rate. By doing this repeatedly for all
 $\mathbf{\xi}^\nu$ that have been randomly picked the error $E$ will be
 minimized by stochastic gradient descent.
 
-The data set is constructed from the given data set as follows. The training set
-consists of the first $P$ examples in the data set. The test set consists of
-the next $Q$ examples of the supplied set. This ensures that there is no
-overlap between the training and the test set so that the best results are
-obtained.
+The data set is constructed from the data set that was supplied as follows. The
+training set $\mathbb{D}_\text{train}$ consists of $P$ randomly picked examples
+in the data set. The test set $\mathbb{D}_\text{test}$ consists of the $Q$
+randomly chosen examples of the supplied set. Care is taken to ensure that
+$\mathbb{D}_\text{train} \cap \mathbb{D}_\text{test} = \emptyset$.
 
 One of the best measures of how well a neural network performs is to look at
 how the error evolves over time. This indicates how fast the network is able to
-learn the function. To test this the network is trained on a fixed subset of
-the data. The first 2000 entries of the data set are used to train the network,
-it is tested on the next 200 entries of the data set. $\eta = 0.05$ during this
+learn from $\mathbb{D}_\text{train}$. To test this the network is trained on a subset of the data. 2000 entries of the data set are used to train the network,
+it is tested on 200 entries of the data set. $\eta = 0.05$ during this
 experiment so that the error is not influenced by a dynamic learning rate. The
-network is trained and evaluated 100 times to negate the effects of the initial
+network is trained and evaluated 25 times to negate the effects of the initial
 weights being random.
 
 The learning rate is of influence of how fast the network converges to a
@@ -91,27 +87,12 @@ a varying learning rate.
 
 Finally the size of the training set might also influence how well the neural
 network is able to learn the function. Several different sizes of training set
-are evaluated while the learning rate and the size of the test set is kept
-constant.
+are evaluated while the learning rate while the size of $\mathbb{D}_\text{test}$
+is kept constant.
 
 \section{Results and discussion}
 
-The results for the first experiment can be found in \autoref{fig:const_eta},
-it shows both the error for the training set ($E$) and the error for the test
-set $E_test$. It clearly shows that the network quickly minimizes the error at
-the start, but around $t = 500$ the error functions level off into a plateau
-state for the next 800 epochs. After that the errors slowly level off to their
-final value of $\sim 0.02$.
-
-From \autoref{fig:const_eta} it is also quite clear that the network does not
-perform as well on the test set as on the training set. This indicates that the
-network slightly overfits on the training set. This is not surprising since the
-neural network has never seen any of the data points in the test set so it
-cannot learn what the corresponding output should be. It can only respond with
-the most likely output based on what it has learned from the training set,
-which is the goal of training a neural network.
-
-<<'const_eta', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set.'>>=
+<<'const_eta', cache=T, echo=F, dev='tikz', fig.pos='h', fig.height=3.5, fig.cap='Error of the neural network during training. $E$ shows the error of the network on the training set while $E_\\text{test}$ shows the error on the test set.'>>=
 dat = read.csv('results.csv', header=T)
 E = aggregate(cbind(E, E_test) ~ t, data=dat, FUN=mean)
 E = E[ order(E$t),]
@@ -120,7 +101,8 @@ plot(E$t, E$E,
      type='l',
      xlab='Epoch',
      ylab='Error',
-     col='blue')
+     col='blue',
+     bty="l")
 lines(E$t, E$E_test,
       col='red')
 legend('topright',
@@ -130,64 +112,7 @@ legend('topright',
        inset=0.03)
 @
 
-<<'eta_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=4, fig.cap='Error on the test set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
-dat = read.csv('eta_sweep.csv', header=T)
-eta = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
-
-plot(eta$t[eta$eta==0.01], eta$E[eta$eta==0.01],
-     type='l',
-     xlab='Epoch',
-     ylab='Error',
-     col='blue',
-     ylim=c(0, 0.3))
-lines(eta$t[eta$eta==0.05], eta$E[eta$eta==0.05], col='red')
-lines(eta$t[eta$eta==0.1], eta$E[eta$eta==0.1], col='green')
-lines(eta$t[eta$eta==0.001], eta$E[eta$eta==0.001], col='black')
-lines(eta$t[eta$eta==0.005], eta$E[eta$eta==0.005], col='cyan')
-legend('topright',
-       c('0.001', '0.005', '0.01', '0.05', '0.1'),
-       col=c('black', 'cyan', 'blue', 'red', 'green'),
-       lty=1,
-       inset=0.03,
-       title='$\\eta$',
-       bg='white')
-@
-
-The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. It shows that only when $\eta = 0.05$ that there is a plateau, all other values of $\eta$ do not show a plateau state. Interestingly enough when $\eta = 0.1$ there are two distinct knees in the graph, one around $t = 500$ and the other at $t = 3000$. This indicates that at some point learning does slow down. The most likely cause is that gradient descent works quite well for a part of the gradient, moving slowly to the minimum for those dimensions. Other parts of the gradient are not descended smoothly but quite jaggedly, the $w$ vectors jump across the minimum for some of the dimensions but the absolute distance to the minimum does decrease. This means that the network is able to learn from the data, but not as efficiently as when $\eta$ is smaller.
-
-For $\eta = 0.15$ we can see that the error is on average \Sexpr{round(median(eta$E[eta$eta==0.15]), 3)} which is higher than for any of the other learning rates. It is likely that the solution of the neural network diverges from the actual solution. This also strengthens the conclusion about $\eta = 0.1$ because a neural network will shows oscillating behaviour when the learning rate is set too high for smooth convergence, and too low to show diverging behaviour.
-
-The network shows smooth convergence when the learning rate is 0.001, 0.005, 0.01, or 0.05. When $\eta = 0.05$ the network reaches a plateau state as discussed above, other values of $\eta$ do not have this effect. When the learning rate is too low the network still converges but it does so very slowly as the graph for $\eta = 0.001$ shows. Although it is important to converge on the solution smoothly, doing so too slowly means that too much time will be spend training. Training can be sped up by taking a higher learning rate.
-
-One of the most interesting curves is that of $\eta = 0.01$. It shows fast convergence on the solution, but after finding the optimal solution with an error of $\Sexpr{round(min(eta$E[eta$eta==0.01]), 3)}$ the error starts to increase again. This means that the network is overfitting on the training set and starts to loose its ability to generalize and perform well on the test set. The same also appears to happen when $\eta = 0.005$ although it happens slower and the overfitting effect is less pronounced as when $\eta = 0.01$. Although the effect is not as strong it might still be better to use a learning rate of 0.01 since it is easier to detect where the minimum error is because fewer training epochs are needed and the graph is not as `flat', so it is easier to determine after how many epoch the minimum has been reached.
-
-<<'P_sweep', cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=6, fig.cap='Performance of the neural network with varying size of the training set. The size of the test set was constant but the included examples depend on the size of the training set. Note that the $y$-axis is logarithmic.'>>=
-dat = read.csv('train_sweep.csv', header=T)
-E = aggregate(E_test ~ t + P, data=dat, FUN=mean)
-plot(E$t[E$P==4000], E$E[E$P==4000],
-     type='l',
-     xlab='Epoch',
-     ylab='Error',
-     col='black',
-     ylim=c(0,.2))
-lines(E$t[E$P==2000], E$E[E$P==2000], col='red')
-lines(E$t[E$P==1500], E$E[E$P==1500], col='green3')
-lines(E$t[E$P==1000], E$E[E$P==1000], col='blue')
-lines(E$t[E$P==500], E$E[E$P==500], col='cyan')
-lines(E$t[E$P==400], E$E[E$P==400], col='maroon')
-lines(E$t[E$P==200], E$E[E$P==200], col='purple')
-lines(E$t[E$P==100], E$E[E$P==100], col='gray')
-legend('topright',
-       c('100', '200', '400', '500', '1000', '1500', '2000', '4000'),
-       col=c('gray', 'purple', 'maroon', 'cyan', 'blue', 'green',
-             'red', 'black'),
-       lty=1,
-       inset=0.03,
-       title='$P$',
-       bg='white')
-@
-
-<<'weights',cache=F, echo=F, dev='tikz', fig.height=5, fig.width=6, fig.pos='t', fig.cap='test'>>=
+<<'weights',cache=T, echo=F, dev='tikz', fig.height=4.5, fig.width=6, fig.pos='h!', fig.cap='Final weight vectors after training a network for 2000 epochs. The size of the bars indicates the magnitude of the component in the vector.'>>=
 weights = as.matrix(read.csv('weights.csv', header=F))
 par(mfrow=c(2,1))
 barplot(weights[1,],
@@ -196,8 +121,8 @@ barplot(weights[1,],
         space=c(0,.5),
         names.arg=1:50,
         border=T,
-        ylim=c(-.4,.4)
-        )
+        ylim=c(-.4,.4),
+        main='$\\mathbf{w}_1$')
 barplot(weights[2,],
         col='blue',
         ylab='Weight',
@@ -205,9 +130,89 @@ barplot(weights[2,],
         space=c(0,.5),
         names.arg=1:50,
         border=T,
-        ylim=c(-.4,.4)
-        )
+        ylim=c(-.4,.4),
+        main='$\\mathbf{w}_2$')
 @
 
+The results for the first experiment can be found in \autoref{fig:const_eta},
+it shows both the error for the training set ($E$) and the error for the test
+set $E_\text{test}$. It clearly shows that the network quickly minimizes the
+error at the start, but around $t = 500$ the error functions levels off.
+
+The error functions have almost the same value at each epoch, indicating that
+the network is able to generalize well from the training data. It is not the
+case that the network over fits on $\mathbb{D}_\text{train}$ since there is no
+increase in $E_\text{test}$ in the later epochs as is usually the case with
+networks that tend to over fit.
+
+
+\autoref{fig:weights} shows the resulting weight vectors $\mathbf{w}_1$ and
+$\mathbf{w}_2$ after $t_\text{max}$ training steps. Interesting enough most of
+the components in $\mathbf{w}_1$ have the opposite sign of the components in
+$\mathbf{w}_2$, often they have a different magnitude so it might be that the
+weight vectors are correcting for the errors that the other vector causes.
+
+<<'eta_sweep', cache=T, echo=F, dev='tikz', fig.pos='h', fig.height=4, fig.cap='Error on the test set for several different values of $\\eta$, the learning rate. The training and testing sets were both kept constant in size and which examples were in them.'>>=
+dat = read.csv('eta_sweep.csv', header=T)
+eta = aggregate(E_test ~ t + eta, data=dat, FUN=mean)
+
+plot(eta$t[eta$eta==0.01], eta$E[eta$eta==0.01],
+     type='l',
+     xlab='Epoch',
+     ylab='Error',
+     col='blue',
+     ylim=c(0, 0.3),
+     bty="l")
+lines(eta$t[eta$eta==0.05], eta$E[eta$eta==0.05], col='red')
+lines(eta$t[eta$eta==0.1], eta$E[eta$eta==0.1], col='green')
+lines(eta$t[eta$eta==0.001], eta$E[eta$eta==0.001], col='black')
+lines(eta$t[eta$eta==0.005], eta$E[eta$eta==0.005], col='purple')
+legend('topright',
+       c('0.001', '0.005', '0.01', '0.05', '0.1'),
+       col=c('black', 'purple', 'blue', 'red', 'green'),
+       lty=1,
+       inset=0.03,
+       title='$\\eta$',
+       bg='white')
+@
+
+The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. For $\eta = 0.1$ we can see that the error is on average \Sexpr{round(median(eta$E[eta$eta==0.1]), 3)} which is higher than for any of the other learning rates. It is likely that the solution of the neural network diverges from the actual solution, or that the step size is so large that the network overshoots the minimum in $E_\text{test}$.
+
+The network shows smooth convergence when the learning rate is 0.001, 0.005, 0.01, or 0.05. When the learning rate is too low the network still converges but it does so very slowly as the graph for $\eta = 0.001$ shows. Although it is important to converge on the solution smoothly, doing so too slowly means that too much time will be spend training. Training can be sped up by taking a higher learning rate. $\eta = 0.005$ shows the same effect when compared to $\eta = 0.01$, both learning rates have a simular error on $\mathbb{D}_\text{test}$ but the former learning rate reaches that point slower than the latter.
+
+When $\eta = 0.05$ the network initially learns as well as when $\eta = 0.01$, but when the error flattens out they never get to the same level, with $\eta = 0.05$ flattening out earlier. So although there is not much difference between them initially, after training completes the error is different. This may have to do with a step size of 0.05 being too large to reach the minimum in $E$, the network `overshoots' the minimum that it is approaching and will never be able to reach it because of this. Often this is desirable because it prevents overfitting on $\mathbb{D}_\text{train}$ but in this case it also increases $E_\text{test}$ after the maximum number of epochs.
+
+%One of the most interesting curves is that of $\eta = 0.01$. It shows fast convergence on the solution, but after finding the optimal solution with an error of $\Sexpr{round(min(eta$E[eta$eta==0.01]), 3)}$ the error starts to increase again. This means that the network is over fitting on the training set and starts to loose its ability to generalize and perform well on the test set. The same also appears to happen when $\eta = 0.005$ although it happens slower and the over fitting effect is less pronounced as when $\eta = 0.01$. Although the effect is not as strong it might still be better to use a learning rate of 0.01 since it is easier to detect where the minimum error is because fewer training epochs are needed and the graph is not as `flat', so it is easier to determine after how many epoch the minimum has been reached.
+
+<<'P_sweep', cache=T, echo=F, dev='tikz', fig.pos='t', fig.height=5.5, fig.cap='Performance of the neural network with varying size of $\\mathbb{D}_\\text{train}$. The size of $\\mathbb{D}_\\text{test}$ was constant.'>>=
+dat = read.csv('train_sweep.csv', header=T)
+E = aggregate(E_test ~ t + P, data=dat, FUN=mean)
+plot(E$t[E$P==4000], E$E[E$P==4000],
+     type='l',
+     xlab='Epoch',
+     ylab='Error',
+     col='black',
+     ylim=c(0,.2),
+     bty="l")
+lines(E$t[E$P==2000], E$E[E$P==2000], col='red')
+lines(E$t[E$P==1500], E$E[E$P==1500], col='green')
+lines(E$t[E$P==1000], E$E[E$P==1000], col='blue')
+lines(E$t[E$P==500], E$E[E$P==500], col='cyan')
+lines(E$t[E$P==400], E$E[E$P==400], col='orange')
+lines(E$t[E$P==200], E$E[E$P==200], col='purple')
+lines(E$t[E$P==100], E$E[E$P==100], col='gray')
+legend('topright',
+       c('100', '200', '400', '500', '1000', '1500', '2000', '4000'),
+       col=c('gray', 'purple', 'orange', 'cyan', 'blue', 'green',
+             'red', 'black'),
+       lty=1,
+       inset=0.03,
+       title='$P$',
+       bg='white')
+@
+
+The final experiment is the influence of the size of $\mathbb{D}_\text{train}$ on $E_\text{test}$. The results of this can be found in \autoref{fig:P_sweep}. Most notably is $P = 100$, in this case the network has enough capacity to store the training set and not learn from it, so it is not generalizing at all which results in a high error on the test set. When $P = 200$ and $P = 400$ the network should theoretically still be storing the data set instead of learning from it, but the error is simular to when the training set is larger.
+
+\autoref{fig:P_sweep} shows that a larger training set doesn't always result in a better performing network. The best results are obtained for $P=1000$, or $P = 5 \times Q$. When $P$ is larger it may simply be that more hard examples are included in the training set so the network has a harder time learning from it because it is getting more examples systematically wrong.
 
 \end{document}
