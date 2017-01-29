@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{xfrac}
+\usepackage{bm}
 \usepackage[hidelinks]{hyperref}
 \usepackage[all]{hypcap}
 
@@ -16,52 +17,53 @@
 
 \section{Introduction}
 An artificial neural network can be used to store data with binary labels. The
-only requirement for this is whether the dataset is linearly seperable. This
+only requirement for this is whether the dataset is linearly separable. This
 means that a the positive and the negative subsets of the data can be separated
 by putting a hyperplane in between them. To be able to store the data in the
 perceptron it needs to be trained. This is done using the Rosenblatt perceptron
 algorithm. The perceptron will be tested on its ability to separate the two
-classes as the ratio of datapoints to input neurons increases.
+classes as the ratio of data points to input neurons increases.
 
 \section{Method}
 A perceptron of $N$ input neurons and a single output neuron is created. $P$
-vectors $\mathbf{\xi} \in \mathbb{R}^N$ are generated with independent random
+vectors $\bm{\xi} \in \mathbb{R}^N$ are generated with independent random
 Gaussian components of mean zero and variance one. This creates a dataset
-matrix $D \in \mathbb{R}^{N \times P}$. Each vector $\xi^\mu$ is assigned a
-positive or a negative ($\pm 1$) label randomly with equal probability. This
-results in a vector $\mathbf{S}$ of $P$ components, one for each datapoint
-$\mathbf{\xi}^\mu$. To finalize the setup of the experiment the perceptron is
-initialized with initial weights of zero, so $\mathbf{w} = 0$.
+matrix $\mathbb{D} \in \mathbb{R}^{N \times P}$. Each vector $\xi^\mu$ is
+assigned a positive or a negative ($\pm 1$) label randomly with equal
+probability. This results in a vector $\mathbf{S}$ of $P$ components, one for
+each data point $\bm{\xi}^\mu$. To finalize the set-up of the experiment the
+perceptron is initialized with initial weights of zero, so $\mathbf{w} = 0$.
 
 The Rosenblatt algorithm for training a perceptron is applied in the following
 manner. The perceptron is trained over a number of epochs, this number of
 epochs can be limited by the variable $n_\text{max}$. During each epoch the
 perceptron is presented with all of the $P$ examples sequentially. After each
 presentation the perceptron classifies the example according to the formula:
-\[ E = \mathbf{w} \cdot \mathbf{\xi}^\mu \mathbf{S}^\mu \]
-where $t$ is the number of the example being presented. If $E \leq 0$ then
+\[ E = \mathbf{w} \cdot \bm{\xi}^\mu S^\mu \]
+where $\mu$ is the number of the example being presented. If $E \leq 0$ then
 the weight vector is updated according to the rule
-\[ \mathbf{w} = \mathbf{w} + \frac{1}{N} \mathbf{\xi}^\mu \mathbf{S}^\mu \]
+\[ \mathbf{w} = \mathbf{w} + \frac{1}{N} \bm{\xi}^\mu S^\mu \]
 otherwise the weight vector is not updated. After this step the next example is
 presented to the perceptron with the updated weight vector.
 
-The training lasts at most $n_\text{max}$ epochs, so at most $n_\text{max} \times P$
-updates to the weight vector are performed. Training the perceptron is
+The training lasts at most $n_\text{max}$ epochs, so at most $n_\text{max}
+\times P$ updates to the weight vector are performed. Training the perceptron is
 successful when the weight vector was not updated during an epoch, this means
-that every single datapoint was classified correctly by the perceptron. If
+that every single data point was classified correctly by the perceptron. If
 the maximum number of epochs has been reached and the weight vector was updated
 during the last epoch then training is marked as a failure.
 
 Finally we want to know the fraction of successful runs, $Q_\text{l.s.}$, as a
 function of $\alpha = \sfrac{P}{N}$. To do this we create $n_D$ independently
-generated datasets $D$ for several different values of $\alpha$. All other
-parameters are kept constant. For each of the independently generated datasets
-an new perceptron is trained. Since we know whether training was successful or
-not we can calculate the value of $Q_\text{l.s.}$ by taking the proportion of
-successfully trained perceptrons. The parameters for the experiment were
-$N = 40, n_D = 200, n_max = 500$, a total of 40 values for $\alpha$ were
-linearly taken between $0.75$ and $3.0$ inclusive. These values were taken to
-give a good resolution of the results while limiting computational time.
+generated datasets $\mathbb{D}$ for several different values of $\alpha$. All
+other parameters are kept constant. For each of the independently generated
+datasets a new perceptron is trained. Since we know whether training was
+successful or not we can calculate the value of $Q_\text{l.s.}$ by taking the
+proportion of successfully trained perceptrons. The parameters for the
+experiment were $N = 40, n_D = 200, n_max = 500$, a total of 40 values for
+$\alpha$ were linearly taken between $0.75$ and $3.0$ inclusive. These values
+were taken to give a good resolution of the results while limiting computational
+time.
 
 \section{Results and discussion}
 <<'plot', echo=F, dev='tikz', fig.cap='The proportion of the size of the dataset as a function of the number of input nodes ($\\alpha = \\sfrac{P}{N}$) versus the proportion of correctly stored datasets ($Q_\\text{l.s.}$).'>>=
@@ -83,10 +85,8 @@ Theoretically the ability to store the dataset in a perceptron is
    1 & \quad \text{for } \alpha \leq 2 \\
    0 & \quad \text{for } \alpha > 2
 \end{cases} \]
-as $N \to \infty$, meaning that there is a point at $\alpha = 2$ where the data is not linearly separable any more. The perceptron will not be able to separate the datapoints anymore. The findings of the experiment are shown in \autoref{fig:plot}, here it can be seen that at around $\alpha = 2$ that the network is able to store less than half of the generated datasets.
+as $N \to \infty$, meaning that there is a point $\alpha = 2$ where the data is not linearly separable any more. The perceptron will not be able to separate the data points after that point. The findings of the experiment are shown in \autoref{fig:plot}, here it can be seen that at around $\alpha = 2$ that the network is able to store only a fraction of the generated datasets. Those datasets that it is able to store are likely linearly separable by accident.
 
-The storage performance mostly degenerates before the $\alpha = 2$ line, with $Q_\text{l.s.} \approx 0.15$ at the point where the transition is expected to happen. The ability of the network to store the data deteriorates before the theoretical limit instead of being symmetric around the limit of $\alpha = 2$
-
-
+The storage performance mostly degenerates before the $\alpha = 2$ line, with $Q_\text{l.s.} \approx 0.15$ at the point where the transition is expected to happen. The ability of the network to store the data deteriorates before the theoretical limit instead of being symmetric around the limit of $\alpha = 2$.
 
 \end{document}

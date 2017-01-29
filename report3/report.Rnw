@@ -32,7 +32,7 @@ This can be turned into the error function
     \tau(\mathbf{\xi}^\mu))^2 \]
 for a data set $\mathbb{D} = \{\mathbf{\xi}^\mu, \tau(\mathbf{\xi}^\mu)\}
 _{\mu=1}^P$. Each $\mathbf{\xi}^\mu \in \mathbb{R}^N$ is an example that will
-be presented to the neural network.
+be presented to the neural network, $\tau(\xi^\mu)$ is the real valued label associated with $\xi^\mu$.
 
 \section{Method}
 
@@ -54,7 +54,8 @@ so during this training step the error is $e^\nu = \frac{1}{2} (\sigma(
 respect to weight vector $\mathbf{w}_j$ can be derived as follows
 
 \begin{align*}
-     \nabla_j = \frac{\partial e^\nu}{\partial \mathbf{w}_j} &= (\sigma(\xi^\nu) - \tau(\xi^\nu)) \sigma'(\xi^\nu) \\
+     \nabla_j = \frac{\partial e^\nu}{\partial \mathbf{w}_j} &= [\frac{1}{2}(\sigma(\xi^\nu) - \tau(\xi^\nu))^2]' \\
+     &= (\sigma(\xi^\nu) - \tau(\xi^\nu)) \sigma'(\xi^\nu) \\
     &= (\sigma(\xi^\nu) - \tau(\xi^\nu))[\tanh(\mathbf{w}_1 \cdot \xi^\nu) + \tanh(\mathbf{w}_2 \cdot \xi^\nu)]' \\
     &= (\sigma(\xi^\nu) - \tau(\xi^\nu))(1 - \tanh^2(\mathbf{w}_j \cdot \xi^\nu)) \xi^\nu
 \end{align*}
@@ -176,11 +177,11 @@ legend('topright',
        bg='white')
 @
 
-The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. For $\eta = 0.1$ we can see that the error is on average \Sexpr{round(median(eta$E[eta$eta==0.1]), 3)} which is higher than for any of the other learning rates. It is likely that the solution of the neural network diverges from the actual solution, or that the step size is so large that the network overshoots the minimum in $E_\text{test}$.
+The effects of various values of $\eta$, the learning rate, are shown in \autoref{fig:eta_sweep}. For $\eta = 0.1$ we can see that the error is on average \Sexpr{round(median(eta$E[eta$eta==0.1]), 3)} which is higher than for any of the other learning rates. It is likely that the solution of the neural network diverges from the actual solution, or that the step size is so large that the update overshoots the minimum in $E_\text{test}$.
 
-The network shows smooth convergence when the learning rate is 0.001, 0.005, 0.01, or 0.05. When the learning rate is too low the network still converges but it does so very slowly as the graph for $\eta = 0.001$ shows. Although it is important to converge on the solution smoothly, doing so too slowly means that too much time will be spend training. Training can be sped up by taking a higher learning rate. $\eta = 0.005$ shows the same effect when compared to $\eta = 0.01$, both learning rates have a simular error on $\mathbb{D}_\text{test}$ but the former learning rate reaches that point slower than the latter.
+The network shows smooth convergence when the learning rate is 0.001, 0.005, 0.01, or 0.05. When the learning rate is too low the network still converges but it does so very slowly as the graph for $\eta = 0.001$ shows. Although it is important to converge on the solution smoothly, doing so too slowly means that too much time will be spend training. Training can be sped up by taking a higher learning rate. $\eta = 0.005$ shows the same effect when compared to $\eta = 0.01$, both learning rates have a similar error on $\mathbb{D}_\text{test}$ but the former learning rate reaches that point slower than the latter.
 
-When $\eta = 0.05$ the network initially learns as well as when $\eta = 0.01$, but when the error flattens out they never get to the same level, with $\eta = 0.05$ flattening out earlier. So although there is not much difference between them initially, after training completes the error is different. This may have to do with a step size of 0.05 being too large to reach the minimum in $E$, the network `overshoots' the minimum that it is approaching and will never be able to reach it because of this. Often this is desirable because it prevents overfitting on $\mathbb{D}_\text{train}$ but in this case it also increases $E_\text{test}$ after the maximum number of epochs.
+When $\eta = 0.05$ the network initially learns as well as when $\eta = 0.01$, but when the error flattens out they never get to the same level, with $\eta = 0.05$ flattening out earlier. So although there is not much difference between them initially, after training completes the error is different. This may have to do with a step size of 0.05 being too large to reach the minimum in $E$, the network `overshoots' the minimum that it is approaching and will never be able to reach it because of this. Often this is desirable because it prevents over fitting on $\mathbb{D}_\text{train}$ but in this case it also increases $E_\text{test}$ after the maximum number of epochs.
 
 %One of the most interesting curves is that of $\eta = 0.01$. It shows fast convergence on the solution, but after finding the optimal solution with an error of $\Sexpr{round(min(eta$E[eta$eta==0.01]), 3)}$ the error starts to increase again. This means that the network is over fitting on the training set and starts to loose its ability to generalize and perform well on the test set. The same also appears to happen when $\eta = 0.005$ although it happens slower and the over fitting effect is less pronounced as when $\eta = 0.01$. Although the effect is not as strong it might still be better to use a learning rate of 0.01 since it is easier to detect where the minimum error is because fewer training epochs are needed and the graph is not as `flat', so it is easier to determine after how many epoch the minimum has been reached.
 
@@ -211,7 +212,7 @@ legend('topright',
        bg='white')
 @
 
-The final experiment is the influence of the size of $\mathbb{D}_\text{train}$ on $E_\text{test}$. The results of this can be found in \autoref{fig:P_sweep}. Most notably is $P = 100$, in this case the network has enough capacity to store the training set and not learn from it, so it is not generalizing at all which results in a high error on the test set. When $P = 200$ and $P = 400$ the network should theoretically still be storing the data set instead of learning from it, but the error is simular to when the training set is larger.
+The final experiment is the influence of the size of $\mathbb{D}_\text{train}$ on $E_\text{test}$. The results of this can be found in \autoref{fig:P_sweep}. Most notably is $P = 100$, in this case the network has enough capacity to store the training set and not learn from it, so it is not generalizing at all which results in a high error on the test set. When $P = 200$ and $P = 400$ the network should theoretically still be storing the data set instead of learning from it, but the error is similar to when the training set is larger.
 
 \autoref{fig:P_sweep} shows that a larger training set doesn't always result in a better performing network. The best results are obtained for $P=1000$, or $P = 5 \times Q$. When $P$ is larger it may simply be that more hard examples are included in the training set so the network has a harder time learning from it because it is getting more examples systematically wrong.
 
