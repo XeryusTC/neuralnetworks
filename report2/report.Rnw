@@ -47,11 +47,11 @@ resulting in a $\mathbf{w}$ that has a small angle to $\mathbf{w}^*$. This angle
 \[ \varepsilon_g = \frac{1}{\pi} \arccos \left( \frac{\mathbf{w} \cdot \mathbf{w}^*}{|\mathbf{w}||\mathbf{w}^*|} \right) \]
 which goes towards 0 as $\mathbf{w}$ becomes parallel to $\mathbf{w}^*$. The implementation of the minover algorithm can be found in \autoref{code:minover}. Note that the implementation doesn't divide by $|\mathbf{w}|$ in the calculation of $\kappa(\mathbf{w})$. After the update step $\mathbf{w}$ is normalized to be of unit length so that it becomes easier to determine when to stop. Training is stopped when $\kappa(\mathbf{w})$ does not change significantly over $P$ rounds of training.
 
-\lstinputlisting[caption={Implementation of the minover training algorithm}, label={code:minover}, firstline=30, lastline=39]{../minover.py}
+\lstinputlisting[caption={Implementation of the minover training algorithm}, label={code:minover}, firstline=29, lastline=39]{../minover.py}
 
 \section{Results and discussion}
 
-<<minover, cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=5, fig.cap='Average generalisation error as a function of $\\alpha = \\frac{P}{N}$. The black line is the observed generalisation error with its standard deviation in grey. The blue line is the theoretical generalisation error for $N = 20$. The red line is the theoretical generalisation error for $N \\to \\infty$.'>>=
+<<minover, cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=5, fig.cap='Average generalisation error as a function of $\\alpha = \\frac{P}{N}$. The black line is the observed generalisation error with its standard deviation in grey. The blue line is the theoretical generalisation error for $N = 20$.'>>=
 dat = read.csv('results.csv', header=T)
 e = aggregate(cbind(err, t) ~ alpha, FUN=mean, data=dat)
 e_std = aggregate(cbind(err, t) ~ alpha, FUN=sd, data=dat)
@@ -60,10 +60,6 @@ epsilon = read.csv('epsilon.csv', header=T)
 
 CI.up = as.numeric(e$err) + as.numeric(e_std$err)
 CI.dn = as.numeric(e$err) - as.numeric(e_std$err)
-
-# theoretical
-x = seq(2, max(e$alpha), 0.1)
-y = 1/(2 * x - 2)
 
 plot(e$alpha, e$err,
      xlab="$\\alpha$",
@@ -77,9 +73,7 @@ axis(2, pos=0)
 polygon(c(e_std$alpha, rev(e_std$alpha)), c(CI.dn, rev(CI.up)),
         col='grey80', border=NA)
 lines(e$alpha, e$err, type='l')
-segments(0, .5, 2, .5, col='red')
-lines(x, y, col='red')
-lines(epsilon$alpha, epsilon$epsilon, col='blue')
+lines(epsilon$alpha[epsilon$alpha<=max(e$alpha)], epsilon$epsilon[epsilon$alpha<=max(e$alpha)], col='blue')
 @
 
 
