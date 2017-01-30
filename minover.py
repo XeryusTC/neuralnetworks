@@ -31,13 +31,12 @@ def train_minover(data, labels, R, n_max):
         mu = 0
         for nu in range(P):
             kappa = (w.dot(data[nu]) * labels[nu])
-            if np.linalg.norm(w) != 0:
-                kappa /= np.linalg.norm(w)
             if kappa < kappa_min:
                 kappa_min = kappa
                 mu = nu
         # Perform the Hebbian update
         w = w + (1/N) * data[mu] * labels[mu]
+        w /= np.linalg.norm(w)
         if np.isclose(kappa_min, last_kappa, atol=1e-3):
             stability += 1
             if stability == P:
@@ -64,6 +63,6 @@ def experiment(N, alphas, n_D, n_max):
 
 if __name__ == '__main__':
     #alphas = np.linspace(0.5, 5.0, 20)
-    alphas = np.arange(0.1, 9.1, 0.1)
+    alphas = np.arange(0.05, 9.1, 0.1)
     print(alphas)
-    experiment(20, alphas, 50, 20000)
+    experiment(20, alphas, 10, 50000)

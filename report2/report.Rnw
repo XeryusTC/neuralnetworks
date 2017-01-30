@@ -2,6 +2,28 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{bm}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage[all]{hypcap}
+
+\lstset{
+    basicstyle=\footnotesize,
+	breakatwhitespace=false,
+	breaklines=true,
+	frame=single,
+	keepspaces=true,
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\tiny,
+	tabsize=4,
+	rulecolor=\color{black},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	title=\lstname,
+    language=python,
+}
 
 \title{Neural Networks Assignment II \\
     Learning a rule}
@@ -14,22 +36,50 @@
 \section{Introduction}
 A perceptron can be used to store a data set if the network is sufficiently large enough. If new unseen data is presented to the perceptron then it can classify the new data points based on the points it has seen before. The classification happens based on the separating hyperplane that the perceptron has found, this hyperplane separates all instances of the positive class from the instances of the negative class.
 
-One of the properties of the separating hyperplane is its optimality, that is, its distance to the closest data point(s). When this distance is the highest possible then the hyperplane is exactly in between the two classes of the dataset. In this case the probability of misclassifying new data is the lowest of any of the possible separating hyperplanes.
+One of the properties of the perceptron is its optimality, that is, the distance of the separating hyperplane to the closest data point(s). When this distance is the highest possible then the hyperplane is exactly in between the two classes of the dataset. In this case the probability of misclassifying new data is the lowest of any of the possible separating hyperplanes. When noise is added to the dataset the perceptron of optimal stability is the least likely to misclassify the data points out of all the possible perceptrons.
 
 \section{Method}
+The dataset $\mathbb{D} = \{ \bm{\xi}^\mu, S_R^\mu = S_R(\bm{\xi}^\mu)\}_{\mu=1}^P$ is obtained by generating $P$ vectors $\bm{\xi}^\mu$ with independent random Gaussian components of mean zero and variance one. A teacher perceptron provides the labels; $S_R(\bm{\xi}^\mu) = \text{sign}(\mathbf{w}^* \cdot \bm{\xi}^\mu)$. No noise is added to the labels.
+
+It is the goal of the student perceptron to find $\mathbf{w}$ such that it approximates $\mathbf{w}^*$. To find the most optimal hyperplane the minover training algorithm is used. This algorithm aims to find a vector $\mathbf{w}$ such that $\kappa(\mathbf{w})$ is maximised where
+\[ \kappa(\mathbf{w}) = \min_\mu = \frac{\mathbf{w} \cdot \bm{\xi}^\mu S_R^\mu}{|\mathbf{w}|} \]
+resulting in a $\mathbf{w}$ that has a small angle to $\mathbf{w}^*$. This angle can also be measured as the generalization error
+\[ \varepsilon_g = \frac{1}{\pi} \arccos \left( \frac{\mathbf{w} \cdot \mathbf{w}^*}{|\mathbf{w}||\mathbf{w}^*|} \right) \]
+which goes towards 0 as $\mathbf{w}$ becomes parallel to $\mathbf{w}^*$. The implementation of the minover algorithm can be found in \autoref{code:minover}. Note that the implementation doesn't divide by $|\mathbf{w}|$ in the calculation of $\kappa(\mathbf{w})$. After the update step $\mathbf{w}$ is normalized to be of unit length so that it becomes easier to determine when to stop. Training is stopped when $\kappa(\mathbf{w})$ does not change significantly over $P$ rounds of training.
+
+\lstinputlisting[caption={Implementation of the minover training algorithm}, label={code:minover}, firstline=30, lastline=39]{../minover.py}
 
 \section{Results and discussion}
 
-<<minover, cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=5, fig.cap='Generalisation error of networks trained minover network'>>=
+<<minover, cache=F, echo=F, dev='tikz', fig.pos='t', fig.height=5, fig.cap='Average generalisation error as a function of $\\alpha = \\frac{P}{N}$. The black line is the observed generalisation error with its standard deviation in grey. The blue line is the theoretical generalisation error for $N = 20$. The red line is the theoretical generalisation error for $N \\to \\infty$.'>>=
 dat = read.csv('results.csv', header=T)
 e = aggregate(cbind(err, t) ~ alpha, FUN=mean, data=dat)
+e_std = aggregate(cbind(err, t) ~ alpha, FUN=sd, data=dat)
+
+epsilon = read.csv('epsilon.csv', header=T)
+
+CI.up = as.numeric(e$err) + as.numeric(e_std$err)
+CI.dn = as.numeric(e$err) - as.numeric(e_std$err)
+
+# theoretical
+x = seq(2, max(e$alpha), 0.1)
+y = 1/(2 * x - 2)
 
 plot(e$alpha, e$err,
-     type="l",
      xlab="$\\alpha$",
-     ylab="$\\epsilon_g$",
-     ylim=c(0, 0.55))
-
+     ylab="$\\varepsilon_g$",
+     ylim=c(0, 0.55),
+     type='n',
+     bty='l',
+     axes=F)
+axis(1, pos=0, at=0:ceiling(max(e$alpha)))
+axis(2, pos=0)
+polygon(c(e_std$alpha, rev(e_std$alpha)), c(CI.dn, rev(CI.up)),
+        col='grey80', border=NA)
+lines(e$alpha, e$err, type='l')
+segments(0, .5, 2, .5, col='red')
+lines(x, y, col='red')
+lines(epsilon$alpha, epsilon$epsilon, col='blue')
 @
 
 
